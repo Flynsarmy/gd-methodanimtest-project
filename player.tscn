@@ -1,0 +1,92 @@
+[gd_scene load_steps=9 format=3 uid="uid://b0skoqlp5s3bh"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_q8b8a"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_vn5jq"]
+
+[sub_resource type="Animation" id="Animation_mbe7l"]
+resource_name = "call_method_anim"
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"foo_bar_baz"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_4y2gt"]
+_data = {
+"call_method_anim": SubResource("Animation_mbe7l")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_10tib"]
+animation = &"call_method_anim"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_rnovt"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_kt2p3"]
+advance_mode = 2
+advance_condition = &"trynow"
+advance_expression = "print(\"Travelling to call_method in the AnimationTree...\") or true"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_nstyb"]
+states/call_method_anim/node = SubResource("AnimationNodeAnimation_10tib")
+states/call_method_anim/position = Vector2(557.667, 99.8889)
+transitions = ["call_method_anim", "End", SubResource("AnimationNodeStateMachineTransition_rnovt"), "Start", "call_method_anim", SubResource("AnimationNodeStateMachineTransition_kt2p3")]
+graph_offset = Vector2(-233, -1)
+
+[node name="MeshInstance3D" type="MeshInstance3D"]
+mesh = SubResource("BoxMesh_vn5jq")
+script = ExtResource("1_q8b8a")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_4y2gt")
+}
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeStateMachine_nstyb")
+anim_player = NodePath("../AnimationPlayer")
+active = true
+parameters/conditions/trynow = false
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="AnimButton" type="Button" parent="CanvasLayer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -281.0
+offset_top = -15.0
+offset_right = -70.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Trigger Animation Directly"
+
+[node name="AnimTreeButton" type="Button" parent="CanvasLayer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 56.0
+offset_top = -15.5
+offset_right = 406.0
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Trigger Animation Through AnimationPlayer"
+
+[connection signal="pressed" from="CanvasLayer/AnimButton" to="." method="_on_anim_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/AnimTreeButton" to="." method="_on_anim_tree_button_pressed"]
